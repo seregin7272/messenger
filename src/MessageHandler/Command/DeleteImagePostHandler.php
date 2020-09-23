@@ -11,7 +11,7 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Symfony\Component\Messenger\Handler\MessageSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
-class DeleteImagePostHandler implements MessageSubscriberInterface
+class DeleteImagePostHandler implements MessageHandlerInterface
 {
     private $eventBus;
     private $entityManager;
@@ -32,12 +32,12 @@ class DeleteImagePostHandler implements MessageSubscriberInterface
         $this->eventBus->dispatch(new ImagePostDeletedEvent($filename));
     }
 
-    public static function getHandledMessages(): iterable
-    {
-        yield DeleteImagePost::class => [
-            'method' => '__invoke',
-            'priority' => 10,
-            //'from_transport' => 'async'
-        ];
-    }
+//    public static function getHandledMessages(): iterable
+//    {
+//        yield DeleteImagePost::class => [
+//            'method' => '__invoke',
+//            'priority' => 10,
+//            //'from_transport' => 'async'
+//        ];
+//    }
 }

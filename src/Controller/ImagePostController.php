@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\ImagePost;
 use App\Message\Command\AddPonkaToImage;
 use App\Message\Command\DeleteImagePost;
+use App\Message\Command\LogEmoji;
 use App\Photo\PhotoPonkaficator;
 use App\Repository\ImagePostRepository;
 use App\Photo\PhotoFileManager;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
+use Symfony\Component\Messenger\Transport\AmqpExt\AmqpStamp;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Image;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -52,7 +54,6 @@ class ImagePostController extends AbstractController
         ValidatorInterface $validator,
         PhotoFileManager $photoManager,
         EntityManagerInterface $entityManager,
-        PhotoPonkaficator $ponkaficator,
         MessageBusInterface $messageBus
     )
     {
@@ -83,7 +84,8 @@ class ImagePostController extends AbstractController
         $message = new AddPonkaToImage($imagePost->getId());
 
         $envelope = new Envelope($message, [
-            new DelayStamp(500)
+            new DelayStamp(1000),
+            new AmqpStamp('normal')
         ]);
 
         $messageBus->dispatch($envelope);
@@ -91,6 +93,7 @@ class ImagePostController extends AbstractController
         /*
          * You've been Ponkafied!
          */
+        //$messageBus->dispatch(new LogEmoji(2));
 
         return $this->toJson($imagePost, 201);
     }
@@ -104,7 +107,6 @@ class ImagePostController extends AbstractController
     public function delete(ImagePost $imagePost, MessageBusInterface $messageBus)
     {
         $messageBus->dispatch(new DeleteImagePost($imagePost));
-        return new Response(null, 204);
 
         return new Response(null, 204);
     }
